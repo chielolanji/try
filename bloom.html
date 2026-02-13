@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Sunflower with Fireflies</title>
+<style>
+/* NIGHT-TIME BACKGROUND */
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #1b263b 100%);
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* BUTTON STYLING */
+button {
+    padding: 12px 28px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    background: #ffbe0b;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    z-index: 1000;
+}
+button:hover {
+    transform: scale(1.05);
+    background: #faa307;
+}
+
+/* MESSAGE BOX */
+.message-box {
+    display: none;
+    width: 90%;
+    max-width: 350px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    background: #fff9c4;
+    border-left: 5px solid #ffbe0b;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+    z-index: 1000;
+}
+
+/* FLOWER WRAPPER */
+.flower-wrapper {
+    display: none;
+    position: relative;
+    width: 90vw;
+    max-width: 350px;
+    aspect-ratio: 3 / 4;
+}
+
+/* Second button */
+#secondBtn {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* SUNFLOWER */
+.flower {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    z-index: 1;
+}
+
+.petal-rotator { position: absolute; width: 100%; height: 100%; }
+.petal {
+    position: absolute;
+    width: 28%;
+    height: 55%;
+    background: radial-gradient(circle at 50% 30%, #ffe066, #f77f00);
+    border-radius: 50%;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* rotate petals evenly */
+.petal-rotator:nth-child(1)  { transform: rotate(0deg); }
+.petal-rotator:nth-child(2)  { transform: rotate(22.5deg); }
+.petal-rotator:nth-child(3)  { transform: rotate(45deg); }
+.petal-rotator:nth-child(4)  { transform: rotate(67.5deg); }
+.petal-rotator:nth-child(5)  { transform: rotate(90deg); }
+.petal-rotator:nth-child(6)  { transform: rotate(112.5deg); }
+.petal-rotator:nth-child(7)  { transform: rotate(135deg); }
+.petal-rotator:nth-child(8)  { transform: rotate(157.5deg); }
+.petal-rotator:nth-child(9)  { transform: rotate(180deg); }
+.petal-rotator:nth-child(10) { transform: rotate(202.5deg); }
+.petal-rotator:nth-child(11) { transform: rotate(225deg); }
+.petal-rotator:nth-child(12) { transform: rotate(247.5deg); }
+.petal-rotator:nth-child(13) { transform: rotate(270deg); }
+.petal-rotator:nth-child(14) { transform: rotate(292.5deg); }
+.petal-rotator:nth-child(15) { transform: rotate(315deg); }
+.petal-rotator:nth-child(16) { transform: rotate(337.5deg); }
+
+.center {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, #6f4518 40%, #3e1f0d 100%);
+    border-radius: 50%;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+}
+.center::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(#2b1a0e 1px, transparent 1px);
+    background-size: 6px 6px;
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+/* STEM AND LEAVES */
+.stem {
+    position: absolute;
+    width: 6%;
+    height: 45%;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, #1b4332, #52b788, #1b4332);
+    border-radius: 40px;
+}
+
+.stem::after {
+    content: "";
+    position: absolute;
+    width: 30%;
+    height: 100%;
+    left: 35%;
+    background: rgba(255,255,255,0.15);
+    border-radius: 40px;
+}
+
+.leaf {
+    position: absolute;
+    width: 30%;
+    height: 15%;
+    background: linear-gradient(to right, #1b4332, #40916c, #74c69d);
+    border-radius: 60% 40% 60% 40%;
+}
+.leaf::after {
+    content: "";
+    position: absolute;
+    width: 60%;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    top: 50%;
+    left: 20%;
+    transform: translateY(-50%);
+}
+.leaf.left { top: 70%; left: 10%; transform: rotate(-35deg); }
+.leaf.right { top: 78%; right: 10%; transform: rotate(35deg); }
+
+/* FIREFLIES */
+.firefly {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #fff97f, #ffec00);
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: fly linear infinite;
+}
+
+/* generate random flight for fireflies */
+@keyframes fly {
+    0% { transform: translate(0,0) scale(1); opacity:0.8; }
+    50% { transform: translate(100px, -80px) scale(1.3); opacity:1; }
+    100% { transform: translate(-50px, 60px) scale(0.8); opacity:0.5; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    button { font-size: 14px; padding: 10px 22px; }
+    .message-box { font-size: 14px; padding: 12px 15px; }
+}
+</style>
+</head>
+<body>
+
+<button id="firstBtn">To Mae 💚 – Click Me!</button>
+
+<div class="flower-wrapper" id="flower">
+    <button id="secondBtn">Show Message</button>
+
+    <div class="flower">
+        <!-- Petals -->
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+        <div class="petal-rotator"><div class="petal"></div></div>
+
+        <div class="center"></div>
+    </div>
+    <div class="stem"></div>
+    <div class="leaf left"></div>
+    <div class="leaf right"></div>
+</div>
+
+<div class="message-box" id="message">Sunflowers always turn toward the light, just like you—always looking on the bright side. Thank you for lighting up my cloudiest days; every time I see a sunflower, it reminds me of you. 🌻</div>
+
+<!-- FIREFLIES -->
+<div class="firefly" style="top:10%; left:20%; animation-duration:5s;"></div>
+<div class="firefly" style="top:30%; left:70%; animation-duration:7s;"></div>
+<div class="firefly" style="top:50%; left:40%; animation-duration:6s;"></div>
+<div class="firefly" style="top:70%; left:60%; animation-duration:8s;"></div>
+<div class="firefly" style="top:20%; left:50%; animation-duration:4s;"></div>
+
+<script>
+const firstBtn = document.getElementById("firstBtn");
+const flower = document.getElementById("flower");
+const secondBtn = document.getElementById("secondBtn");
+const message = document.getElementById("message");
+
+// First click: show flower
+firstBtn.addEventListener("click", () => {
+    firstBtn.style.display = "none";
+    flower.style.display = "block";
+});
+
+// Second click: hide flower, show message
+secondBtn.addEventListener("click", () => {
+    flower.style.display = "none";
+    message.style.display = "block";
+});
+</script>
+
+</body>
+</html>
